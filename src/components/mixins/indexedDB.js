@@ -2,7 +2,7 @@ export const indexedDB = {
   methods: {
     initDb: function () {
       var promise = new Promise((resolve, reject) => {
-        if (this.setUp) {
+        if (this.db) {
           resolve(this.db)
         }
 
@@ -15,8 +15,14 @@ export const indexedDB = {
 
         request.onsuccess = function (event) {
           this.db = event.target.result
-          this.setUp = true
           resolve(this.db)
+        }
+
+        request.onupgradeneeded = function (event) {
+          var db = event.target.result
+          var usuarioStore = db.createObjectStore('usuario', { keyPath: 'id' })
+          usuarioStore.createIndex('tipo', 'tipo')
+          usuarioStore.createIndex('tipoProfesional', 'tipoProfesional')
         }
       })
 
@@ -47,8 +53,5 @@ export const indexedDB = {
       })
       return promise
     }
-  },
-  mounted () {
-    this.setUp = false
   }
 }
